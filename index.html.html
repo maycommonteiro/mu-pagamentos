@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>MU Cosmic — Pagamentos</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#060a10; color:#c8e0f0; font-family:monospace; font-size:14px; padding:24px; }
+h1 { color:#00c8ff; font-size:22px; margin-bottom:6px; letter-spacing:2px; }
+h2 { color:#00c8ff; font-size:13px; letter-spacing:2px; margin:24px 0 10px; border-bottom:1px solid #1e3a5f; padding-bottom:6px; }
+p  { color:#5a7a96; margin-bottom:16px; font-size:13px; }
+textarea { width:100%; height:220px; background:#0c1220; border:1px solid #1e3a5f; color:#c8e0f0; font-family:monospace; font-size:13px; padding:12px; resize:vertical; outline:none; border-radius:3px; }
+textarea:focus { border-color:#00c8ff; }
+button { margin-top:12px; margin-right:10px; padding:10px 22px; background:#00c8ff; color:#060a10; border:none; font-family:monospace; font-size:13px; font-weight:bold; cursor:pointer; border-radius:3px; }
+button:hover { background:#33d4ff; }
+button.sec { background:transparent; color:#00c8ff; border:1px solid #00c8ff; }
+button.gold-btn { background:#ffd700; color:#060a10; }
+button.gold-btn:hover { background:#ffe94d; }
+.stats { display:flex; gap:16px; margin:16px 0; flex-wrap:wrap; }
+.stat { background:#0c1220; border:1px solid #1e3a5f; padding:12px 20px; border-radius:3px; text-align:center; min-width:120px; }
+.sv { font-size:22px; font-weight:bold; }
+.sl { font-size:11px; color:#5a7a96; margin-top:4px; }
+table { width:100%; border-collapse:collapse; margin-top:8px; }
+th { text-align:left; padding:8px 10px; border-bottom:1px solid #1e3a5f; color:#5a7a96; font-size:11px; }
+td { padding:8px 10px; border-bottom:1px solid #0f1e30; }
+tr:hover td { background:rgba(0,200,255,0.04); }
+.nc { color:#00c8ff; } .ng { color:#ffd700; } .nd { color:#00e5a0; } .nm { color:#5a7a96; }
+.nvip { color:#ffd700; font-size:12px; }
+#sb, #sb-vip { background:#030608; border:1px solid #1e3a5f; padding:14px; font-size:12px; color:#7ec8e3; max-height:280px; overflow-y:auto; white-space:pre; border-radius:3px; margin-top:10px; }
+.hidden { display:none; }
+.warn { background:rgba(255,107,0,0.08); border:1px solid rgba(255,107,0,0.3); padding:10px 14px; border-radius:3px; color:#ffaa55; font-size:12px; margin:10px 0; }
+.info { background:rgba(255,215,0,0.06); border:1px solid rgba(255,215,0,0.25); padding:10px 14px; border-radius:3px; color:#ffd700; font-size:12px; margin:10px 0; }
+.step { display:flex; gap:12px; margin-bottom:10px; font-size:13px; }
+.sn { background:#00c8ff; color:#060a10; font-weight:bold; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:12px; }
+.sn.gold { background:#ffd700; }
+code { background:#0c1220; padding:1px 5px; border-radius:2px; color:#ffd700; }
+#cpok, #cpok-vip { color:#00e5a0; margin-left:10px; display:none; }
+
+/* TABS */
+.tabs { display:flex; gap:0; margin-bottom:0; margin-top:8px; }
+.tab { padding:10px 28px; background:#0c1220; border:1px solid #1e3a5f; border-bottom:none; color:#5a7a96; font-family:monospace; font-size:13px; font-weight:bold; cursor:pointer; letter-spacing:1px; border-radius:3px 3px 0 0; margin-right:4px; transition:all .15s; }
+.tab:hover { color:#00c8ff; }
+.tab.active { background:#060a10; color:#00c8ff; border-color:#00c8ff; border-bottom:1px solid #060a10; position:relative; z-index:2; }
+.tab.gold-tab.active { color:#ffd700; border-color:#ffd700; }
+.tab.gold-tab { color:#7a6a00; }
+.tab.gold-tab:hover { color:#ffd700; }
+.tab-content { border:1px solid #1e3a5f; border-radius:0 3px 3px 3px; padding:24px; background:#060a10; position:relative; z-index:1; }
+.tab-content.gold-border { border-color:#3a3000; }
+
+/* VIP config row */
+.vip-config { display:flex; gap:16px; align-items:flex-end; margin-bottom:18px; flex-wrap:wrap; }
+.vip-config label { font-size:11px; color:#5a7a96; display:block; margin-bottom:5px; letter-spacing:1px; }
+.vip-config select, .vip-config input[type=number] {
+  background:#0c1220; border:1px solid #1e3a5f; color:#ffd700;
+  font-family:monospace; font-size:13px; padding:8px 12px; border-radius:3px; outline:none;
+}
+.vip-config select:focus, .vip-config input[type=number]:focus { border-color:#ffd700; }
+.vip-config input[type=number] { width:100px; }
+</style>
+</head>
+<body>
+<h1>MU COSMIC // PAGAMENTOS</h1>
+<p>Cole a lista do Discord, processe e copie o script para o console do painel admin.</p>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" id="tab-gold" onclick="switchTab('gold')">⚔ GOLD / DONATE</div>
+  <div class="tab gold-tab" id="tab-vip" onclick="switchTab('vip')">★ VIP</div>
+</div>
+
+<!-- TAB: GOLD/DONATE -->
+<div class="tab-content" id="panel-gold">
+  <h2>[ 01 ] LISTA DO DISCORD</h2>
+  <textarea id="txt" placeholder="Cole aqui a lista completa do Discord..."></textarea>
+  <div>
+    <button id="btnP">PROCESSAR</button>
+    <button class="sec" id="btnL">LIMPAR</button>
+  </div>
+  <div id="resultado" class="hidden">
+    <h2>[ 02 ] RESUMO</h2>
+    <div class="stats">
+      <div class="stat"><div class="sv nc" id="sc">0</div><div class="sl">PERSONAGENS</div></div>
+      <div class="stat"><div class="sv ng" id="sg">0</div><div class="sl">TOTAL GOLD</div></div>
+      <div class="stat"><div class="sv nd" id="sd">0</div><div class="sl">TOTAL DONATE</div></div>
+    </div>
+    <table><thead><tr><th>#</th><th>PERSONAGEM</th><th>GOLD</th><th>DONATE</th></tr></thead><tbody id="tb"></tbody></table>
+    <h2>[ 03 ] SCRIPT — COLE NO CONSOLE DO PAINEL</h2>
+    <div class="step"><div class="sn">1</div><div>Acesse <strong>mucosmic.com.br/admin/</strong> ja logado.</div></div>
+    <div class="step"><div class="sn">2</div><div>Pressione <code>F12</code> e clique na aba <strong>Console</strong>.</div></div>
+    <div class="step"><div class="sn">3</div><div>Clique em <strong>COPIAR SCRIPT</strong>, cole com <code>Ctrl+V</code> e pressione <code>Enter</code>.</div></div>
+    <div class="warn">ATENCAO: Nao feche a aba do painel durante a execucao.</div>
+    <div><button id="btnC">COPIAR SCRIPT</button><span id="cpok">Copiado!</span></div>
+    <div id="sb"></div>
+  </div>
+</div>
+
+<!-- TAB: VIP -->
+<div class="tab-content gold-border hidden" id="panel-vip">
+  <h2>[ 01 ] CONFIGURACAO VIP</h2>
+  <div class="vip-config">
+    <div>
+      <label>TIPO DE VIP</label>
+      <select id="vip-tipo">
+        <option value="1">VIP BRONZE</option>
+        <option value="2" selected>VIP GOLD</option>
+        <option value="3">VIP SUPREME</option>
+      </select>
+    </div>
+    <div>
+      <label>DIAS A ADICIONAR</label>
+      <input type="number" id="vip-dias" value="30" min="1" max="3650">
+    </div>
+  </div>
+  <div class="info">Os dias serão somados à data de vencimento atual. Se o VIP estiver expirado, conta a partir de hoje.</div>
+
+  <h2>[ 02 ] LISTA DE LOGINS</h2>
+  <p>Um login por linha. Apenas o nome da conta (ex: <code>admin</code>, <code>jogador123</code>).</p>
+  <textarea id="txt-vip" placeholder="admin&#10;jogador123&#10;xpto_player&#10;..."></textarea>
+  <div>
+    <button class="gold-btn" id="btnPV">PROCESSAR</button>
+    <button class="sec" id="btnLV">LIMPAR</button>
+  </div>
+
+  <div id="resultado-vip" class="hidden">
+    <h2>[ 03 ] RESUMO</h2>
+    <div class="stats">
+      <div class="stat"><div class="sv ng" id="scv">0</div><div class="sl">CONTAS</div></div>
+      <div class="stat"><div class="sv nvip" id="stv">VIP GOLD</div><div class="sl">TIPO</div></div>
+      <div class="stat"><div class="sv nd" id="sdv">30</div><div class="sl">DIAS</div></div>
+    </div>
+    <table><thead><tr><th>#</th><th>LOGIN</th></tr></thead><tbody id="tb-vip"></tbody></table>
+
+    <h2>[ 04 ] SCRIPT — COLE NO CONSOLE DO PAINEL</h2>
+    <div class="step"><div class="sn gold">1</div><div>Acesse <strong>mucosmic.com.br/admin/</strong> ja logado.</div></div>
+    <div class="step"><div class="sn gold">2</div><div>Pressione <code>F12</code> e clique na aba <strong>Console</strong>.</div></div>
+    <div class="step"><div class="sn gold">3</div><div>Clique em <strong>COPIAR SCRIPT</strong>, cole com <code>Ctrl+V</code> e pressione <code>Enter</code>.</div></div>
+    <div class="warn">ATENCAO: Nao feche a aba do painel durante a execucao.</div>
+    <div><button class="gold-btn" id="btnCV">COPIAR SCRIPT VIP</button><span id="cpok-vip">Copiado!</span></div>
+    <div id="sb-vip"></div>
+  </div>
+</div>
+
+<script>
+/* ===================== TABS ===================== */
+function switchTab(t) {
+  document.getElementById('panel-gold').classList.toggle('hidden', t!=='gold');
+  document.getElementById('panel-vip').classList.toggle('hidden', t!=='vip');
+  document.getElementById('tab-gold').classList.toggle('active', t==='gold');
+  document.getElementById('tab-vip').classList.toggle('active', t==='vip');
+}
+
+/* ===================== GOLD/DONATE (original) ===================== */
+var dados = [];
+var IGNORAR = ['total','totais','mata','esconde','moveu','achou','trade','wins','eventos','evento','maratona','pagamentos','pagamento','ganhadores','ganhador','live','tarde','noite','colaborador','game','master','icone','cargo','de','do','da','dos','das','dia','dias','ontem','bills','netto','crf','lacerda','zanguetsu','leo','gm','cl','pk','vip','free','normal','online','offline','hrs','invisivel'];
+var CAB = /^(total[:\s]|eventos?[:\s!]|maratona|pagamentos?|ganhadores?|mata\s*mata|esconde|moveu\s*achou|trade\s*wins)/i;
+
+function limLinha(s) {
+  s = s.replace(/[\u200B-\u200D\uFEFF\u00AD]/g,'');
+  s = s.replace(/[\xed\xi]cone.*$/i,'');
+  s = s.replace(/\u2014.*$/,'');
+  s = s.replace(/\d{2}\/\d{2}\/\d{4}\s*\d{2}:\d{2}.*$/,'');
+  s = s.replace(/\(.*?\)/g,'');
+  s = s.replace(/^([A-Za-z0-9_\-\[\]\.]+)-?\s+-\s+(\d+)/, '$1 = $2');
+  s = s.replace(/^(.*?)-\s+(\d+)/, '$1 = $2');
+  return s.trim();
+}
+
+function add(mapa, nome, g, d) {
+  nome = nome.trim().replace(/\s+/g,'');
+  if (!nome || nome.length < 2) return;
+  if (!mapa[nome]) mapa[nome] = {g:0, d:0};
+  mapa[nome].g += g;
+  mapa[nome].d += d;
+}
+
+function processar() {
+  var txt = document.getElementById('txt').value;
+  if (!txt.trim()) { alert('Cole a lista primeiro!'); return; }
+  var mapa = {};
+  var linhas = txt.split('\n');
+  for (var i = 0; i < linhas.length; i++) {
+    var l = limLinha(linhas[i]);
+    if (!l || CAB.test(l)) continue;
+    var m;
+    m = l.match(/^([-_]?[A-Za-z0-9][A-Za-z0-9_\-\[\]\.]*[-_]?)\s*[=:]\s*(\d+)\s*(?:GOLDS?|GOLD|\[G\])\s*\+\s*(\d+)\s*DONATES?/i);
+    if (m) { add(mapa,m[1],+m[2],+m[3]); continue; }
+    m = l.match(/^([-_]?[A-Za-z0-9][A-Za-z0-9_\-\[\]\.]*[-_]?)\s*[=:]\s*(\d+)\s*(?:GOLDS?|GOLD|\[G\])/i);
+    if (m) { add(mapa,m[1],+m[2],0); continue; }
+    m = l.match(/^([-_]?[A-Za-z0-9][A-Za-z0-9_\-\[\]\.]*[-_]?)\s+(\d+)\s*\[G\]/i);
+    if (m) { add(mapa,m[1],+m[2],0); continue; }
+    m = l.match(/^([-_]?[A-Za-z0-9][A-Za-z0-9_\-\[\]\.]*[-_]?)\s+(\d+)\s*(?:GOLDS?|GOLD)\b/i);
+    if (m) { add(mapa,m[1],+m[2],0); continue; }
+    m = l.match(/^([-_]?[A-Za-z0-9][A-Za-z0-9_\-\[\]\.]*[-_]?)\s*[=:]\s*(\d+)\s*DONATES?/i);
+    if (m) { add(mapa,m[1],0,+m[2]); continue; }
+    m = l.match(/^([-_]?[A-Za-z0-9][A-Za-z0-9_\-\[\]\.]*[-_]?)\s+(\d+)\s*$/);
+    if (m && IGNORAR.indexOf(m[1].toLowerCase())<0 && m[1].length>=2) { add(mapa,m[1],+m[2],0); continue; }
+    m = l.match(/^([-_]?[A-Za-z0-9][A-Za-z0-9_\-\[\]\.]*[-_]?)\s*[=:]\s*(\d+)\s*$/);
+    if (m && IGNORAR.indexOf(m[1].toLowerCase())<0 && m[1].length>=2) { add(mapa,m[1],+m[2],0); continue; }
+  }
+  dados = [];
+  for (var n in mapa) { if (mapa[n].g>0||mapa[n].d>0) dados.push({nome:n,gold:mapa[n].g,donate:mapa[n].d}); }
+  dados.sort(function(a,b){return a.nome.localeCompare(b.nome);});
+  if (!dados.length) { alert('Nenhum personagem encontrado.'); return; }
+  render();
+  gerarScript();
+  document.getElementById('resultado').classList.remove('hidden');
+  document.getElementById('resultado').scrollIntoView({behavior:'smooth'});
+}
+
+function render() {
+  var tg=0,td=0,tb=document.getElementById('tb');
+  tb.innerHTML='';
+  for (var i=0;i<dados.length;i++) {
+    var d=dados[i]; tg+=d.gold; td+=d.donate;
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td class="nm">'+(i+1)+'</td><td class="nc">'+d.nome+'</td><td class="ng">'+(d.gold>0?'+'+d.gold:'&mdash;')+'</td><td class="nd">'+(d.donate>0?'+'+d.donate:'&mdash;')+'</td>';
+    tb.appendChild(tr);
+  }
+  document.getElementById('sc').textContent=dados.length;
+  document.getElementById('sg').textContent=tg;
+  document.getElementById('sd').textContent=td;
+}
+
+function gerarScript() {
+  var lista = JSON.stringify(dados);
+  var linhas = [
+    '// MU COSMIC - Pagamento Automatico',
+    '// Personagens: ' + dados.length,
+    '// ' + new Date().toLocaleString('pt-BR'),
+    '',
+    '(async function() {',
+    '  var BASE = "https://mucosmic.com.br";',
+    '  var lista = ' + lista + ';',
+    '  var delay = function(ms){ return new Promise(function(r){ setTimeout(r,ms); }); };',
+    '',
+    '  async function buscar(nome) {',
+    '    var url = BASE + "/admin/characters?name=" + encodeURIComponent(nome);',
+    '    var r = await fetch(url, {',
+    '      credentials: "include",',
+    '      headers: {"X-Requested-With":"XMLHttpRequest","X-PJAX":"true","X-PJAX-Container":"#pjax-container"}',
+    '    });',
+    '    var html = await r.text();',
+    '    var doc = new DOMParser().parseFromString(html, "text/html");',
+    '    var links = doc.querySelectorAll("a");',
+    '    for (var i=0; i<links.length; i++) {',
+    '      var href = links[i].getAttribute("href") || "";',
+    '      if (href.indexOf("/admin/accounts/edit/") !== -1) {',
+    '        return href;',
+    '      }',
+    '    }',
+    '    return null;',
+    '  }',
+    '',
+    '  async function editar(path, addG, addD) {',
+    '    var r = await fetch(BASE + path, {credentials:"include"});',
+    '    var html = await r.text();',
+    '    var doc = new DOMParser().parseFromString(html, "text/html");',
+    '    var gEl = doc.querySelector("input[name=coin_gold]");',
+    '    var dEl = doc.querySelector("input[name=coin_donate]");',
+    '    if (!gEl || !dEl) throw new Error("Campos coin_gold/coin_donate nao encontrados");',
+    '    var gAtual = parseInt(gEl.value) || 0;',
+    '    var dAtual = parseInt(dEl.value) || 0;',
+    '    var gNovo = gAtual + addG;',
+    '    var dNovo = dAtual + addD;',
+    '    var form = doc.querySelector("form");',
+    '    if (!form) throw new Error("Formulario nao encontrado");',
+    '    var fd = new FormData();',
+    '    var els = doc.querySelectorAll("form input, form select, form textarea");',
+    '    for (var i=0; i<els.length; i++) {',
+    '      var el = els[i]; if (!el.name) continue;',
+    '      if (el.type === "checkbox") fd.set(el.name, el.checked ? "1" : "0");',
+    '      else if (el.type === "radio") { if (el.checked) fd.set(el.name, el.value); }',
+    '      else if (el.type === "submit") continue;',
+    '      else fd.set(el.name, el.value);',
+    '    }',
+    '    fd.set("coin_gold", gNovo.toString());',
+    '    fd.set("coin_donate", dNovo.toString());',
+    '    fd.set("_method", "PUT");',
+    '    var resp = await fetch(BASE + path, {',
+    '      method: "POST",',
+    '      body: fd,',
+    '      credentials: "include",',
+    '      headers: {"X-Requested-With":"XMLHttpRequest"}',
+    '    });',
+    '    return {gAtual:gAtual, dAtual:dAtual, gNovo:gNovo, dNovo:dNovo, status:resp.status};',
+    '  }',
+    '',
+    '  console.log("%c MU COSMIC - Iniciando ","background:#00c8ff;color:#000;font-weight:bold");',
+    '  console.log("Total: " + lista.length + " personagens");',
+    '  var ok=0, erros=[];',
+    '',
+    '  for (var i=0; i<lista.length; i++) {',
+    '    var p = lista[i];',
+    '    console.log("["+(i+1)+"/"+lista.length+"] "+p.nome+" | +"+p.gold+"G +"+p.donate+"D");',
+    '    try {',
+    '      var path = await buscar(p.nome);',
+    '      if (!path) {',
+    '        console.warn("  Nao encontrado: "+p.nome);',
+    '        erros.push(p.nome+" - nao encontrado");',
+    '        await delay(500); continue;',
+    '      }',
+    '      var res = await editar(path, p.gold, p.donate);',
+    '      console.log("  OK | Gold: "+res.gAtual+" > "+res.gNovo+" | Donate: "+res.dAtual+" > "+res.dNovo+" | HTTP:"+res.status);',
+    '      ok++;',
+    '    } catch(e) {',
+    '      console.error("  ERRO em "+p.nome+": "+e.message);',
+    '      erros.push(p.nome+" - "+e.message);',
+    '    }',
+    '    await delay(1500);',
+    '  }',
+    '',
+    '  console.log("---");',
+    '  console.log("%c CONCLUIDO: "+ok+"/"+lista.length+" ","background:#00e5a0;color:#000;font-weight:bold");',
+    '  if (erros.length) { console.warn("Erros:"); erros.forEach(function(e){ console.warn("  "+e); }); }',
+    '})();'
+  ];
+  document.getElementById('sb').textContent = linhas.join('\n');
+}
+
+function copiar() {
+  var txt = document.getElementById('sb').textContent;
+  if (!txt) return;
+  var ok = document.getElementById('cpok');
+  var show = function(){ ok.style.display='inline'; setTimeout(function(){ ok.style.display='none'; },2500); };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt).then(show).catch(function(){ fb(txt); show(); });
+  } else { fb(txt); show(); }
+}
+
+function limpar() {
+  document.getElementById('txt').value='';
+  document.getElementById('resultado').classList.add('hidden');
+  dados=[];
+}
+
+/* ===================== VIP ===================== */
+var dadosVip = [];
+
+var VIP_NOMES = { '1':'VIP BRONZE', '2':'VIP GOLD', '3':'VIP SUPREME' };
+
+function processarVip() {
+  var txt = document.getElementById('txt-vip').value.trim();
+  if (!txt) { alert('Cole a lista de logins primeiro!'); return; }
+  var tipo = document.getElementById('vip-tipo').value;
+  var dias = parseInt(document.getElementById('vip-dias').value) || 30;
+
+  dadosVip = [];
+  var linhas = txt.split('\n');
+  for (var i = 0; i < linhas.length; i++) {
+    var l = linhas[i].replace(/[\u200B-\u200D\uFEFF\u00AD]/g,'').trim();
+    if (!l || l.length < 2) continue;
+    // aceita só o login (sem espaços, remove lixo)
+    var login = l.split(/\s+/)[0];
+    if (login && login.length >= 2) dadosVip.push(login);
+  }
+  // deduplicar
+  dadosVip = dadosVip.filter(function(v,i,a){ return a.indexOf(v)===i; });
+
+  if (!dadosVip.length) { alert('Nenhum login encontrado.'); return; }
+
+  renderVip(tipo, dias);
+  gerarScriptVip(tipo, dias);
+  document.getElementById('resultado-vip').classList.remove('hidden');
+  document.getElementById('resultado-vip').scrollIntoView({behavior:'smooth'});
+}
+
+function renderVip(tipo, dias) {
+  var tb = document.getElementById('tb-vip');
+  tb.innerHTML = '';
+  for (var i = 0; i < dadosVip.length; i++) {
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td class="nm">'+(i+1)+'</td><td class="nc">'+dadosVip[i]+'</td>';
+    tb.appendChild(tr);
+  }
+  document.getElementById('scv').textContent = dadosVip.length;
+  document.getElementById('stv').textContent = VIP_NOMES[tipo] || 'VIP GOLD';
+  document.getElementById('sdv').textContent = dias;
+}
+
+function gerarScriptVip(tipo, dias) {
+  var lista = JSON.stringify(dadosVip);
+  var linhas = [
+    '// MU COSMIC - VIP Automatico',
+    '// Contas: ' + dadosVip.length,
+    '// Tipo: ' + (VIP_NOMES[tipo]||tipo) + ' | Dias: +' + dias,
+    '// ' + new Date().toLocaleString('pt-BR'),
+    '',
+    '(async function() {',
+    '  var BASE = "https://mucosmic.com.br";',
+    '  var logins = ' + lista + ';',
+    '  var VIP_TIPO = "' + tipo + '";',
+    '  var VIP_DIAS = ' + dias + ';',
+    '  var delay = function(ms){ return new Promise(function(r){ setTimeout(r,ms); }); };',
+    '',
+    '  // Adiciona VIP_DIAS à data de vencimento atual (ou hoje se expirado)',
+    '  function novaExpiracao(dataAtual) {',
+    '    var base;',
+    '    if (dataAtual && dataAtual.match(/\\d{2}\\/\\d{2}\\/\\d{4}/)) {',
+    '      var p = dataAtual.split("/");',
+    '      var dt = new Date(+p[2], +p[1]-1, +p[0]);',
+    '      base = dt > new Date() ? dt : new Date();',
+    '    } else {',
+    '      base = new Date();',
+    '    }',
+    '    base.setDate(base.getDate() + VIP_DIAS);',
+    '    var d = String(base.getDate()).padStart(2,"0");',
+    '    var m = String(base.getMonth()+1).padStart(2,"0");',
+    '    var y = base.getFullYear();',
+    '    return d+"/"+m+"/"+y;',
+    '  }',
+    '',
+    '  async function buscarConta(login) {',
+    '    var url = BASE + "/admin/accounts?name=" + encodeURIComponent(login);',
+    '    var r = await fetch(url, {',
+    '      credentials: "include",',
+    '      headers: {"X-Requested-With":"XMLHttpRequest","X-PJAX":"true","X-PJAX-Container":"#pjax-container"}',
+    '    });',
+    '    var html = await r.text();',
+    '    var doc = new DOMParser().parseFromString(html, "text/html");',
+    '    var links = doc.querySelectorAll("a");',
+    '    for (var i=0; i<links.length; i++) {',
+    '      var href = links[i].getAttribute("href") || "";',
+    '      if (href.indexOf("/admin/accounts/edit/") !== -1) {',
+    '        return href;',
+    '      }',
+    '    }',
+    '    return null;',
+    '  }',
+    '',
+    '  async function editarVip(path) {',
+    '    var r = await fetch(BASE + path, {credentials:"include"});',
+    '    var html = await r.text();',
+    '    var doc = new DOMParser().parseFromString(html, "text/html");',
+    '    var vipEl = doc.querySelector("select[name=vip_type]");',
+    '    var expEl = doc.querySelector("input[name=vip_expire]");',
+    '    if (!vipEl || !expEl) throw new Error("Campos vip_type/vip_expire nao encontrados");',
+    '    var expAtual = expEl.value;',
+    '    var novaExp = novaExpiracao(expAtual);',
+    '    var form = doc.querySelector("form");',
+    '    if (!form) throw new Error("Formulario nao encontrado");',
+    '    var fd = new FormData();',
+    '    var els = doc.querySelectorAll("form input, form select, form textarea");',
+    '    for (var i=0; i<els.length; i++) {',
+    '      var el = els[i]; if (!el.name) continue;',
+    '      if (el.type === "checkbox") fd.set(el.name, el.checked ? "1" : "0");',
+    '      else if (el.type === "radio") { if (el.checked) fd.set(el.name, el.value); }',
+    '      else if (el.type === "submit") continue;',
+    '      else fd.set(el.name, el.value);',
+    '    }',
+    '    fd.set("vip_type", VIP_TIPO);',
+    '    fd.set("vip_expire", novaExp);',
+    '    fd.set("_method", "PUT");',
+    '    var resp = await fetch(BASE + path, {',
+    '      method: "POST",',
+    '      body: fd,',
+    '      credentials: "include",',
+    '      headers: {"X-Requested-With":"XMLHttpRequest"}',
+    '    });',
+    '    return {expAtual:expAtual, novaExp:novaExp, status:resp.status};',
+    '  }',
+    '',
+    '  console.log("%c MU COSMIC - VIP Automatico ","background:#ffd700;color:#000;font-weight:bold");',
+    '  console.log("Total: " + logins.length + " contas | Tipo: " + VIP_TIPO + " | Dias: +" + VIP_DIAS);',
+    '  var ok=0, erros=[];',
+    '',
+    '  for (var i=0; i<logins.length; i++) {',
+    '    var login = logins[i];',
+    '    console.log("["+(i+1)+"/"+logins.length+"] "+login);',
+    '    try {',
+    '      var path = await buscarConta(login);',
+    '      if (!path) {',
+    '        console.warn("  Nao encontrado: "+login);',
+    '        erros.push(login+" - nao encontrado");',
+    '        await delay(500); continue;',
+    '      }',
+    '      var res = await editarVip(path);',
+    '      console.log("  OK | Vencimento: "+res.expAtual+" > "+res.novaExp+" | HTTP:"+res.status);',
+    '      ok++;',
+    '    } catch(e) {',
+    '      console.error("  ERRO em "+login+": "+e.message);',
+    '      erros.push(login+" - "+e.message);',
+    '    }',
+    '    await delay(1500);',
+    '  }',
+    '',
+    '  console.log("---");',
+    '  console.log("%c CONCLUIDO: "+ok+"/"+logins.length+" ","background:#ffd700;color:#000;font-weight:bold");',
+    '  if (erros.length) { console.warn("Erros:"); erros.forEach(function(e){ console.warn("  "+e); }); }',
+    '})();'
+  ];
+  document.getElementById('sb-vip').textContent = linhas.join('\n');
+}
+
+function copiarVip() {
+  var txt = document.getElementById('sb-vip').textContent;
+  if (!txt) return;
+  var ok = document.getElementById('cpok-vip');
+  var show = function(){ ok.style.display='inline'; setTimeout(function(){ ok.style.display='none'; },2500); };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt).then(show).catch(function(){ fb(txt); show(); });
+  } else { fb(txt); show(); }
+}
+
+function limparVip() {
+  document.getElementById('txt-vip').value='';
+  document.getElementById('resultado-vip').classList.add('hidden');
+  dadosVip=[];
+}
+
+function fb(txt) {
+  var ta = document.createElement('textarea');
+  ta.value = txt; ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.focus(); ta.select();
+  try { document.execCommand('copy'); } catch(e) {}
+  document.body.removeChild(ta);
+}
+
+document.getElementById('btnP').addEventListener('click', processar);
+document.getElementById('btnL').addEventListener('click', limpar);
+document.getElementById('btnC').addEventListener('click', copiar);
+document.getElementById('btnPV').addEventListener('click', processarVip);
+document.getElementById('btnLV').addEventListener('click', limparVip);
+document.getElementById('btnCV').addEventListener('click', copiarVip);
+</script>
+</body>
+</html>
